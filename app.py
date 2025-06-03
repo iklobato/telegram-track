@@ -10,7 +10,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = Config.FLASK_SECRET_KEY
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Ensure data directory exists
 os.makedirs(os.path.dirname(Config.DATABASE_PATH), exist_ok=True)
 db_manager = DatabaseManager(Config.DATABASE_PATH)
 
@@ -44,7 +43,6 @@ def get_all_drivers():
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint for load balancers"""
     return jsonify({
         'status': 'healthy',
         'service': 'driver-tracking-web',
@@ -60,7 +58,6 @@ def handle_disconnect():
     print('Client disconnected from dashboard')
 
 def broadcast_location_update(driver_id, location_data):
-    """Broadcast location updates to all connected clients"""
     socketio.emit('location_update', {
         'driver_id': driver_id,
         'location': location_data

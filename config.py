@@ -2,31 +2,24 @@ import os
 from typing import Optional
 
 class Config:
-    """Configuration settings for the Driver Tracking System"""
     
-    # Telegram Bot Configuration
     BOT_TOKEN: str = os.getenv('TELEGRAM_BOT_TOKEN', '')
     BOT_USERNAME: str = os.getenv('TELEGRAM_BOT_USERNAME', '')
     
-    # Flask Configuration
     FLASK_SECRET_KEY: str = os.getenv('FLASK_SECRET_KEY', 'change-this-in-production')
     FLASK_HOST: str = os.getenv('FLASK_HOST', '0.0.0.0')
     FLASK_PORT: int = int(os.getenv('FLASK_PORT', 5000))
     FLASK_DEBUG: bool = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     
-    # Database Configuration
     DATABASE_PATH: str = os.getenv('DATABASE_PATH', '/app/data/tracking.db')
     
-    # Tracking Configuration
-    AUTO_TRACK_INTERVAL: int = int(os.getenv('AUTO_TRACK_INTERVAL', 30))  # seconds
+    AUTO_TRACK_INTERVAL: int = int(os.getenv('AUTO_TRACK_INTERVAL', 30))
     MAX_GENERATED_LINKS: int = int(os.getenv('MAX_GENERATED_LINKS', 100))
     
-    # Server Configuration
     ALLOWED_HOSTS: str = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
     
     @classmethod
     def validate_config(cls) -> bool:
-        """Validate that required configuration is set"""
         missing_config = []
         
         if not cls.BOT_TOKEN:
@@ -46,12 +39,10 @@ class Config:
     
     @classmethod
     def get_tracking_link(cls, driver_id: str) -> str:
-        """Generate tracking link for a driver"""
         return f"https://t.me/{cls.BOT_USERNAME}?start={driver_id}"
     
     @classmethod
     def print_config(cls) -> None:
-        """Print current configuration (for server logs)"""
         print("🔧 Server Configuration:")
         print(f"   Flask Host: {cls.FLASK_HOST}")
         print(f"   Flask Port: {cls.FLASK_PORT}")
@@ -64,12 +55,9 @@ class Config:
 
     @classmethod
     def is_production(cls) -> bool:
-        """Check if running in production mode"""
         return not cls.FLASK_DEBUG
 
-# Environment variables setup instructions
 def setup_environment():
-    """Print instructions for setting up environment variables"""
     print("""
 🌍 Environment Variables Setup (Optional):
 
