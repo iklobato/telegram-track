@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Tracking Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚚 Driver Tracking Dashboard</h1>
+            <button id="generateLink" class="btn btn-primary">Generate New Tracking Link</button>
+        </header>
+
+        <div class="dashboard">
+            <div class="sidebar">
+                <h3>Active Drivers</h3>
+                <div id="driverList" class="driver-list">
+                </div>
+                
+                <div class="link-generator">
+                    <h3>Generated Links</h3>
+                    <div id="generatedLinks"></div>
+                </div>
+            </div>
+
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="connectionStatus">🔴 Disconnected</span>
+            <span id="lastUpdate">Last update: Never</span>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/tracking.js') }}"></script>
+</body>
+</html> 
